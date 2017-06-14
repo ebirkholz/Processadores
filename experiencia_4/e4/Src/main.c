@@ -43,6 +43,12 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#define SDA (1<<9) //PB.9 - Pode alterar
+#define SCL (1<<8) //PB.8 - Pode alterar
+#define SDA0 GPIOB->BRR=SDA
+#define SDA1 GPIOB->BSRR=SDA
+#define SCL0 GPIOB->BRR=SCL
+#define SCL1 GPIOB->BSRR=SCL
 
 /* USER CODE END Includes */
 
@@ -80,9 +86,121 @@ void rele(int num);
 void modo_prog(void);
 void modo_temp(void);
 
+//I2C daqui pra BAIXO
+void configura_sensor();
+void start_i2c();
+void stop_i2c();
+void envia_1_i2c();
+void envia_0_i2c();
+void ack_i2c();
+//void envia_byte_i2c();
+float le_temp_i2c();
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
+void configura_sensor()
+{
+    unsigned char conf = 0x00;
+    HAL_I2C_MEM_Write(&hi2c,0x4f,1,1,&conf,1,10);
+//    char x=0;
+//    start_i2c();
+//    envia_1_i2c();
+//    envia_0_i2c();
+//    envia_0_i2c();
+//    envia_1_i2c();
+//    envia_0_i2c();
+//    envia_0_i2c();
+//    envia_0_i2c();
+//    envia_0_i2c(); //0 pois ´e escrita
+//    x = ack_i2c();
+//    envia_byte_i2c(0x00);
+//    x = ack_i2c();
+//    envia_byte_i2c(0x00);
+//    x = ack_i2c();
+//    stop_i2c();
+}
+
+void start_i2c(void) //I2C START
+{
+    SDA1;
+    HAL_Delay(1);//1 milisegundo
+    SCL1;
+    HAL_Delay(1);//1 milisegundo
+    SDA0;
+    HAL_Delay(1);//1 milisegundo
+    SCL0;
+    HAL_Delay(1);//1 milisegundo
+}
+
+void stop_i2c(void) //I2C STOP
+{
+    SDA0;
+    HAL_Delay(1);//1 milisegundo
+    SCL0;
+    HAL_Delay(1);//1 milisegundo
+    SCL1;
+    HAL_Delay(1);//1 milisegundo
+    SDA1;
+    HAL_Delay(1);//1 milisegundo
+}
+
+void envia_1_i2c(void) //Envia 1 pelo I2C
+{
+    SDA1;
+    HAL_Delay(1);//1 milisegundo
+    SCL1;
+    HAL_Delay(1);//1 milisegundo
+    SCL0;
+    HAL_Delay(1);//1 milisegundo
+}
+
+void envia_0_i2c(void) //Envia 0 pelo I2C
+{
+    SDA0;
+    HAL_Delay(1);//1 milisegundo
+    SCL1;
+    HAL_Delay(1);//1 milisegundo
+    SCL0;
+    HAL_Delay(1);//1 milisegundo
+}
+
+int ack_i2c(void)
+{
+    int x;
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = GPIO_PIN_7; // SDA => PB.7
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT; //FAZ SDA COMO ENTRADA
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    SCL1;
+    HAL_Delay(1);//1 milisegundo
+    x = HAL_GPIO_ReadPin(GPIOB,SDA); //L^E O PINO
+    SCL0;
+    HAL_Delay(1);//1 milisegundo
+    GPIO_InitStruct.Pin = GPIO_PIN_7; // SDA => PB.7
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; //FAZ SDA COMO SA´IDA
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    
+    return x; //se 0 ok, se 1 erro
+}
+
+float le_temp_i2c()
+{
+    float temperatura;
+    char temp[2];
+    
+    HAL_I2C_MeM_Read(&hi2c,0x4f,1,1,&temp,2,20);
+    temperatura=temp[1];
+    if(temp[0]&(1<<7)!=0) temperatura+=0.5;
+    
+    return temperatura;
+}
+
 
 void dados(int comando)
 {
