@@ -1,0 +1,26 @@
+--cpu Cortex-M0+
+"exp44\gpio.o"
+"exp44\stm32l0xx_hal_msp.o"
+"exp44\stm32l0xx_it.o"
+"exp44\main.o"
+"exp44\system_stm32l0xx.o"
+"exp44\startup_stm32l082xx.o"
+"exp44\stm32l0xx_hal_rcc.o"
+"exp44\stm32l0xx_hal_i2c.o"
+"exp44\stm32l0xx_hal_flash.o"
+"exp44\stm32l0xx_hal_tim.o"
+"exp44\stm32l0xx_hal.o"
+"exp44\stm32l0xx_hal_flash_ramfunc.o"
+"exp44\stm32l0xx_hal_cortex.o"
+"exp44\stm32l0xx_hal_pwr_ex.o"
+"exp44\stm32l0xx_hal_pwr.o"
+"exp44\stm32l0xx_hal_i2c_ex.o"
+"exp44\stm32l0xx_hal_flash_ex.o"
+"exp44\stm32l0xx_hal_gpio.o"
+"exp44\stm32l0xx_hal_tim_ex.o"
+"exp44\stm32l0xx_hal_dma.o"
+"exp44\stm32l0xx_hal_rcc_ex.o"
+--library_type=microlib --strict --scatter "exp44\exp44.sct"
+--diag_suppress=L6329 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "exp44.map" -o exp44\exp44.axf
